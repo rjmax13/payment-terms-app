@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -37,6 +38,7 @@ class PaymentEstimatorApp(tk.Tk):
             "status": tk.StringVar(value="Enter values and calculate."),
         }
         self.quote_text = ""
+        self.toast_window: Optional[tk.Toplevel] = None
 
         self._build_ui()
 
@@ -132,13 +134,42 @@ class PaymentEstimatorApp(tk.Tk):
 
     def copy_results(self) -> None:
         if not self.quote_text:
-            messagebox.showinfo("Copy Results", "Run a calculation first.")
+            self._show_toast("Run a calculation first.")
             return
 
         self.clipboard_clear()
         self.clipboard_append(self.quote_text)
         self.result_vars["status"].set("Results copied to clipboard.")
-        messagebox.showinfo("Copy Results", "Payment estimate copied to clipboard.")
+        self._show_toast("Payment estimate copied to clipboard.")
+
+    def _show_toast(self, text: str, duration_ms: int = 1800) -> None:
+        if self.toast_window is not None and self.toast_window.winfo_exists():
+            self.toast_window.destroy()
+
+        toast = tk.Toplevel(self)
+        self.toast_window = toast
+        toast.overrideredirect(True)
+        toast.attributes("-topmost", True)
+
+        frame = tk.Frame(toast, bg="#2b2b2b", bd=1, relief="solid")
+        frame.pack(fill="both", expand=True)
+        tk.Label(
+            frame,
+            text=text,
+            bg="#2b2b2b",
+            fg="white",
+            padx=12,
+            pady=8,
+            font=("Segoe UI", 10),
+        ).pack()
+
+        self.update_idletasks()
+        toast.update_idletasks()
+        x = self.winfo_rootx() + self.winfo_width() - toast.winfo_reqwidth() - 20
+        y = self.winfo_rooty() + self.winfo_height() - toast.winfo_reqheight() - 20
+        toast.geometry(f"+{x}+{y}")
+
+        toast.after(duration_ms, toast.destroy)
 
     @staticmethod
     def _format_quote_output(
