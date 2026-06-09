@@ -72,13 +72,7 @@ class PaymentEstimatorApp(tk.Tk):
         self._add_result_row(result_frame, 4, "Total Payable", self.result_vars["total"])
         self._add_result_row(result_frame, 5, "Status", self.result_vars["status"])
 
-        ttk.Label(result_frame, text="Copy/Paste Output").grid(row=6, column=0, sticky="nw", pady=(10, 6), padx=(0, 12))
-        self.output_box = tk.Text(result_frame, height=8, width=60, wrap="word")
-        self.output_box.grid(row=6, column=1, sticky="nsew", pady=(10, 6))
-        self.output_box.insert("1.0", "Run a calculation to generate a copyable summary.")
-
-        ttk.Button(result_frame, text="Copy Results", command=self.copy_results).grid(row=7, column=1, sticky="e", pady=(6, 0))
-        result_frame.rowconfigure(6, weight=1)
+        ttk.Button(result_frame, text="Copy Results", command=self.copy_results).grid(row=6, column=1, sticky="e", pady=(10, 0))
 
     @staticmethod
     def _add_input_row(parent: ttk.LabelFrame, row: int, label: str, widget: ttk.Widget) -> None:
@@ -133,8 +127,6 @@ class PaymentEstimatorApp(tk.Tk):
                 monthly=self.result_vars["monthly"].get(),
                 total=self.result_vars["total"].get(),
             )
-            self.output_box.delete("1.0", tk.END)
-            self.output_box.insert("1.0", self.quote_text)
         except Exception as exc:
             messagebox.showerror("Calculation error", str(exc))
 
